@@ -1,0 +1,16 @@
+.{
+    .name = "librdkafka",
+    .version = "2.8.0",
+    .dependencies = .{},
+    .paths = .{
+        "mklove",
+        "packaging",
+        "src",
+        "Makefile",
+        "build.zig",
+        "build.zig.zon",
+        "configure",
+        "configure.self",
+        "lds-gen.py",
+    },
+}
