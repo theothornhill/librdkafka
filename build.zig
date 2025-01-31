@@ -49,7 +49,6 @@ pub fn build(b: *std.Build) void {
 
 const build_flags = &.{
     "-std=gnu90",
-    "-s",
     "-O3",
 };
 
