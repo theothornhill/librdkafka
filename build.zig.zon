@@ -1,5 +1,6 @@
 .{
-    .name = "librdkafka",
+    .name = .librdkafka,
+    .fingerprint = 0x3f5312f58567a559,
     .version = "2.8.0",
     .dependencies = .{},
     .paths = .{
