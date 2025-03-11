@@ -15,12 +15,16 @@ pub fn build(b: *std.Build) void {
     const c_header = b.addConfigHeader(.{}, .{
         .SOLIB_EXT = ".so",
         .ENABLE_DEVEL = 0,
+        .ENABLE_REGEX_EXT = 1,
+        .HAVE_REGEX = 1,
+        .ENABLE_LZ4_EXT = 1,
+        .WITH_LZ4_EXT = 1,
         .WITH_LIBDL = 1,
         .WITH_PLUGINS = 1,
         .WITH_SSL = 1,
         .WITH_SASL_SCRAM = 1,
         .WITH_SASL_OAUTHBEARER = 1,
-        .BUILT_WITH = "LIBDL PLUGINS SSL SASL_SCRAM SASL_OAUTHBEARER",
+        .BUILT_WITH = "LIBDL PLUGINS LZ4_EXT SSL SASL_SCRAM SASL_OAUTHBEARER",
     });
     lib.addConfigHeader(c_header);
 
@@ -55,7 +59,7 @@ pub fn build(b: *std.Build) void {
 }
 
 const build_flags = &.{
-    "-std=gnu90",
+    // "-std=gnu90",
     "-fno-sanitize=undefined",
     "-O3",
 };
