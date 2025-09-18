@@ -4,10 +4,13 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    const lib = b.addStaticLibrary(.{
+    const lib = b.addLibrary(.{
         .name = "rdkafka",
-        .target = target,
-        .optimize = optimize,
+        .linkage = .static,
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+        }),
     });
 
     lib.step.dependOn(&checkConfigH(b).step);
@@ -26,31 +29,24 @@ pub fn build(b: *std.Build) void {
         .WITH_SASL_OAUTHBEARER = 1,
         .BUILT_WITH = "LIBDL PLUGINS LZ4_EXT SSL SASL_SCRAM SASL_OAUTHBEARER",
     });
-    lib.addConfigHeader(c_header);
+    lib.root_module.addConfigHeader(c_header);
 
-    lib.installHeadersDirectory(
-        b.path("src"),
-        "src",
-        .{},
-    );
+    lib.installHeadersDirectory(b.path("src"), "src", .{});
 
-    lib.addIncludePath(b.path("src"));
+    lib.root_module.addIncludePath(b.path("src"));
     lib.addCSourceFiles(.{
-        .root = b.path("src"),
         .files = src,
         .flags = build_flags,
     });
 
-    lib.addIncludePath(b.path("src/opentelemetry"));
+    lib.root_module.addIncludePath(b.path("src/opentelemetry"));
     lib.addCSourceFiles(.{
-        .root = b.path("src/opentelemetry"),
         .files = src_opentelemetry,
         .flags = build_flags,
     });
 
-    lib.addIncludePath(b.path("src/nanopb"));
+    lib.root_module.addIncludePath(b.path("src/nanopb"));
     lib.addCSourceFiles(.{
-        .root = b.path("src/nanopb"),
         .files = src_nanopb,
         .flags = build_flags,
     });
@@ -59,107 +55,103 @@ pub fn build(b: *std.Build) void {
 }
 
 const build_flags = &.{
-    // "-std=gnu90",
     "-fno-sanitize=undefined",
     "-O3",
 };
 
 const src = &.{
-    "rdkafka.c",
-    "rdkafka_broker.c",
-    "rdkafka_msg.c",
-    "rdkafka_topic.c",
-    "rdkafka_conf.c",
-    "rdkafka_timer.c",
-    "rdkafka_offset.c",
-    "rdkafka_transport.c",
-    "rdkafka_buf.c",
-    "rdkafka_queue.c",
-    "rdkafka_op.c",
-    "rdkafka_request.c",
-    "rdkafka_cgrp.c",
-    "rdkafka_pattern.c",
-    "rdkafka_partition.c",
-    "rdkafka_subscription.c",
-    "rdkafka_assignment.c",
-    "rdkafka_assignor.c",
-    "rdkafka_range_assignor.c",
-    "rdkafka_roundrobin_assignor.c",
-    "rdkafka_sticky_assignor.c",
-    "rdkafka_feature.c",
-    "rdkafka_mock.c",
-    "rdkafka_mock_handlers.c",
-    "rdkafka_mock_cgrp.c",
-    "rdkafka_error.c",
-    "rdkafka_fetcher.c",
-    "rdkafka_telemetry.c",
-    "rdkafka_telemetry_encode.c",
-    "rdkafka_telemetry_decode.c",
-    "rdkafka_sasl_cyrus.c",
-    "rdkafka_sasl_scram.c",
-    "rdkafka_sasl_oauthbearer.c",
-    "rdcrc32.c",
-    "crc32c.c",
-    "rdmurmur2.c",
-    "rdfnv1a.c",
-    "cJSON.c",
-    "rdaddr.c",
-    "rdrand.c",
-    "rdlist.c",
-    "tinycthread.c",
-    "tinycthread_extra.c",
-    "rdlog.c",
-    "rdstring.c",
-    "rdkafka_event.c",
-    "rdkafka_metadata.c",
-    "rdregex.c",
-    "rdports.c",
-    "rdkafka_metadata_cache.c",
-    "rdavl.c",
-    "rdkafka_sasl.c",
-    "rdkafka_sasl_plain.c",
-    "rdkafka_interceptor.c",
-    "rdkafka_msgset_writer.c",
-    "rdkafka_msgset_reader.c",
-    "rdkafka_header.c",
-    "rdkafka_admin.c",
-    "rdkafka_aux.c",
-    "rdkafka_background.c",
-    "rdkafka_idempotence.c",
-    "rdkafka_cert.c",
-    "rdkafka_txnmgr.c",
-    "rdkafka_coord.c",
-    "rdbase64.c",
-    "rdvarint.c",
-    "rdbuf.c",
-    "rdmap.c",
-    "rdunittest.c",
-    "snappy.c",
-    "rdgz.c",
-    "rdhdrhistogram.c",
-    "rdkafka_ssl.c",
-    "rdkafka_lz4.c",
-    "rdxxhash.c",
-    "rddl.c",
-    "rdkafka_plugin.c",
+    "src/rdkafka.c",
+    "src/rdkafka_broker.c",
+    "src/rdkafka_msg.c",
+    "src/rdkafka_topic.c",
+    "src/rdkafka_conf.c",
+    "src/rdkafka_timer.c",
+    "src/rdkafka_offset.c",
+    "src/rdkafka_transport.c",
+    "src/rdkafka_buf.c",
+    "src/rdkafka_queue.c",
+    "src/rdkafka_op.c",
+    "src/rdkafka_request.c",
+    "src/rdkafka_cgrp.c",
+    "src/rdkafka_pattern.c",
+    "src/rdkafka_partition.c",
+    "src/rdkafka_subscription.c",
+    "src/rdkafka_assignment.c",
+    "src/rdkafka_assignor.c",
+    "src/rdkafka_range_assignor.c",
+    "src/rdkafka_roundrobin_assignor.c",
+    "src/rdkafka_sticky_assignor.c",
+    "src/rdkafka_feature.c",
+    "src/rdkafka_mock.c",
+    "src/rdkafka_mock_handlers.c",
+    "src/rdkafka_mock_cgrp.c",
+    "src/rdkafka_error.c",
+    "src/rdkafka_fetcher.c",
+    "src/rdkafka_telemetry.c",
+    "src/rdkafka_telemetry_encode.c",
+    "src/rdkafka_telemetry_decode.c",
+    "src/rdkafka_sasl_cyrus.c",
+    "src/rdkafka_sasl_scram.c",
+    "src/rdkafka_sasl_oauthbearer.c",
+    "src/rdcrc32.c",
+    "src/crc32c.c",
+    "src/rdmurmur2.c",
+    "src/rdfnv1a.c",
+    "src/cJSON.c",
+    "src/rdaddr.c",
+    "src/rdrand.c",
+    "src/rdlist.c",
+    "src/tinycthread.c",
+    "src/tinycthread_extra.c",
+    "src/rdlog.c",
+    "src/rdstring.c",
+    "src/rdkafka_event.c",
+    "src/rdkafka_metadata.c",
+    "src/rdregex.c",
+    "src/rdports.c",
+    "src/rdkafka_metadata_cache.c",
+    "src/rdavl.c",
+    "src/rdkafka_sasl.c",
+    "src/rdkafka_sasl_plain.c",
+    "src/rdkafka_interceptor.c",
+    "src/rdkafka_msgset_writer.c",
+    "src/rdkafka_msgset_reader.c",
+    "src/rdkafka_header.c",
+    "src/rdkafka_admin.c",
+    "src/rdkafka_aux.c",
+    "src/rdkafka_background.c",
+    "src/rdkafka_idempotence.c",
+    "src/rdkafka_cert.c",
+    "src/rdkafka_txnmgr.c",
+    "src/rdkafka_coord.c",
+    "src/rdbase64.c",
+    "src/rdvarint.c",
+    "src/rdbuf.c",
+    "src/rdmap.c",
+    "src/rdunittest.c",
+    "src/snappy.c",
+    "src/rdgz.c",
+    "src/rdhdrhistogram.c",
+    "src/rdkafka_ssl.c",
+    "src/rdkafka_lz4.c",
+    "src/rdxxhash.c",
+    "src/rddl.c",
+    "src/rdkafka_plugin.c",
 };
 
 const src_nanopb = &.{
-    "pb_encode.c",
-    "pb_decode.c",
-    "pb_common.c",
+    "src/nanopb/pb_encode.c",
+    "src/nanopb/pb_decode.c",
+    "src/nanopb/pb_common.c",
 };
 
 const src_opentelemetry = &.{
-    "metrics.pb.c",
-    "common.pb.c",
-    "resource.pb.c",
+    "src/opentelemetry/metrics.pb.c",
+    "src/opentelemetry/common.pb.c",
+    "src/opentelemetry/resource.pb.c",
 };
 
 fn checkConfigH(b: *std.Build) *std.Build.Step.CheckFile {
-    // Source references to config.h must be changed from ../config.h to config.h
-    // because the file is generated by build.zig instead of ./config. E.g. do:
-    // $ find src -exec sed -i 's,../config.h,config.h,' {} \;
     return b.addCheckFile(
         b.path("src/tinycthread.h"),
         .{ .expected_matches = &.{"#include \"config.h\""} },
