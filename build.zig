@@ -34,19 +34,19 @@ pub fn build(b: *std.Build) void {
     lib.installHeadersDirectory(b.path("src"), "src", .{});
 
     lib.root_module.addIncludePath(b.path("src"));
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = src,
         .flags = build_flags,
     });
 
     lib.root_module.addIncludePath(b.path("src/opentelemetry"));
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = src_opentelemetry,
         .flags = build_flags,
     });
 
     lib.root_module.addIncludePath(b.path("src/nanopb"));
-    lib.addCSourceFiles(.{
+    lib.root_module.addCSourceFiles(.{
         .files = src_nanopb,
         .flags = build_flags,
     });
